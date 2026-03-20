@@ -25,7 +25,9 @@
         {"rule_id": "BR005", "description": "Надёжность: 0-3 'Не знаю' — Высокая, 4-8 — Средняя, 9+ — Низкая."},
         {"rule_id": "BR006", "description": "Категория помечается как ориентировочная при менее 3 ответах."},
         {"rule_id": "BR007", "description": "LLM-анализ генерируется через OpenAI-совместимый API, до 2000 символов."},
-        {"rule_id": "BR008", "description": "HTML-отчёт с брендингом Andre AI Technologies, dark/light тема."}
+        {"rule_id": "BR008", "description": "HTML-отчёт с брендингом Andre AI Technologies, dark/light тема."},
+        {"rule_id": "BR009", "description": "Отчёты доступны по публичному домену andre.technology через HTTPS. URL формата: https://andre.technology/api/v1/reports/{report_id}."},
+        {"rule_id": "BR010", "description": "REPORT_BASE_URL конфигурируется через переменную окружения. В production: https://andre.technology, в dev: http://localhost:8000."}
       ],
       "acceptance_criteria": [
         {
@@ -98,7 +100,10 @@
       "non_functional_requirements": [
         {"nfr_id": "NFR001", "type": "performance", "description": "Расчёт результатов — менее 100ms."},
         {"nfr_id": "NFR002", "type": "availability", "description": "Fallback при недоступности LLM."},
-        {"nfr_id": "NFR003", "type": "security", "description": "Санитизация report_id, экранирование HTML."}
+        {"nfr_id": "NFR003", "type": "security", "description": "Санитизация report_id, экранирование HTML."},
+        {"nfr_id": "NFR004", "type": "security", "description": "HTTPS через Let's Encrypt SSL на домене andre.technology."},
+        {"nfr_id": "NFR005", "type": "infrastructure", "description": "Nginx reverse proxy перед FastAPI. Отчёты персистентны через Docker volume."},
+        {"nfr_id": "NFR006", "type": "availability", "description": "HTTP→HTTPS редирект. Автообновление SSL-сертификатов через certbot."}
       ],
       "test_cases": [
         {
@@ -140,6 +145,14 @@
           "action": "generate_html_report(result, analysis)",
           "assertion": "HTML содержит результаты, брендинг, dark mode",
           "examples": [{"input": {}, "expected": {"contains": ["<!DOCTYPE html>", "Andre AI"]}}]
+        },
+        {
+          "test_id": "T006a",
+          "scenario_id": "SC005",
+          "setup": "REPORT_BASE_URL=https://andre.technology",
+          "action": "get_report_url(report_id)",
+          "assertion": "URL начинается с https://andre.technology/api/v1/reports/",
+          "examples": [{"input": {"report_id": "abc123def456"}, "expected": {"url": "https://andre.technology/api/v1/reports/abc123def456"}}]
         },
         {
           "test_id": "T006",

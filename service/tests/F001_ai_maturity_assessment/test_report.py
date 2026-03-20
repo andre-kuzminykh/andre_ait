@@ -2,6 +2,7 @@
 
 import sys
 import os
+from unittest.mock import patch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from service.assessment.report_service import ReportService
@@ -182,3 +183,52 @@ def test_report_strengths_and_weaknesses():
     html = report_svc.generate_html_report(result, None)
     assert "Сильные стороны" in html
     assert "Зоны роста" in html
+
+
+def test_report_url_with_production_domain():
+    """Report URL should use REPORT_BASE_URL from config (production domain)."""
+    svc = ReportService()
+    with patch("service.assessment.report_service.config") as mock_config:
+        mock_config.REPORT_BASE_URL = "https://andre.technology"
+        url = svc.get_report_url("abc123def456")
+    assert url == "https://andre.technology/api/v1/reports/abc123def456"
+
+
+def test_report_url_with_localhost():
+    """Report URL should work with localhost for local development."""
+    svc = ReportService()
+    with patch("service.assessment.report_service.config") as mock_config:
+        mock_config.REPORT_BASE_URL = "http://localhost:8000"
+        url = svc.get_report_url("abc123def456")
+    assert url == "http://localhost:8000/api/v1/reports/abc123def456"
+
+
+def test_report_url_strips_trailing_slash():
+    """Report URL should handle trailing slash in REPORT_BASE_URL."""
+    svc = ReportService()
+    with patch("service.assessment.report_service.config") as mock_config:
+        mock_config.REPORT_BASE_URL = "https://andre.technology/"
+        url = svc.get_report_url("abc123def456")
+    assert url == "https://andre.technology/api/v1/reports/abc123def456"
+
+
+def test_report_save_and_read():
+    """Saved report should be readable by ID."""
+    svc = ReportService()
+    html = "<html><body>Test</body></html>"
+    report_id = svc.save_report(html)
+    assert len(report_id) == 12
+    assert all(c in "0123456789abcdef" for c in report_id)
+    content = svc.read_report(report_id)
+    assert content == html
+    # cleanup
+    path = svc.get_report_path(report_id)
+    if path:
+        os.remove(path)
+
+
+def test_report_invalid_id_returns_none():
+    """Invalid report_id should return None."""
+    svc = ReportService()
+    assert svc.get_report_path("invalid!@#") is None
+    assert svc.read_report("nonexistent123") is None
