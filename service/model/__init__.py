@@ -1,0 +1,6 @@
+from model.base_model import Base, BaseModel
+from model.assessment.user_model import UserModel
+from model.assessment.assessment_model import AssessmentModel
+from model.assessment.answer_model import AnswerModel
+
+__all__ = ["Base", "BaseModel", "UserModel", "AssessmentModel", "AnswerModel"]

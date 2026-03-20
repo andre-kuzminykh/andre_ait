@@ -1,0 +1,155 @@
+{
+  "product_name": "AI Maturity Assessment Backend",
+  "product_overview": "Бэкенд-сервис для диагностики AI-зрелости компаний. Хранит данные пользователей, ассессментов и ответов. Рассчитывает результаты, генерирует LLM-анализ и HTML-отчёты.",
+  "features": [
+    {
+      "feature_id": "F001",
+      "general_info": {
+        "name": "AI Maturity Assessment",
+        "overview": "Полный цикл диагностики: создание ассессмента, сохранение ответов на 35 вопросов по 7 категориям, расчёт результатов (индекс зрелости, уровень, SWOT), генерация LLM-анализа и HTML-отчёта."
+      },
+      "goal_and_context": {
+        "business_goal": "Предоставить компаниям инструмент оценки уровня AI-зрелости с конкретными рекомендациями по развитию.",
+        "user_problem": "Компании не понимают, на каком уровне AI-зрелости находятся и какие шаги предпринять для развития."
+      },
+      "actors_and_roles": {
+        "primary_user": "Telegram-бот (API-клиент)",
+        "secondary_user": "Администратор",
+        "system_service": "OpenAI-совместимый LLM API"
+      },
+      "business_rules": [
+        {"rule_id": "BR001", "description": "35 вопросов, 7 категорий по 5 вопросов."},
+        {"rule_id": "BR002", "description": "Каждый ответ — от 1 до 5 или 'Не знаю' (is_unknown=true)."},
+        {"rule_id": "BR003", "description": "Средний балл по категории: avg = sum(scores)/count, percent = ((avg-1)/4)*100."},
+        {"rule_id": "BR004", "description": "Взвешенный индекс: total = sum(cat_percent * weight) / sum(weights)."},
+        {"rule_id": "BR005", "description": "Надёжность: 0-3 'Не знаю' — Высокая, 4-8 — Средняя, 9+ — Низкая."},
+        {"rule_id": "BR006", "description": "Категория помечается как ориентировочная при менее 3 ответах."},
+        {"rule_id": "BR007", "description": "LLM-анализ генерируется через OpenAI-совместимый API, до 2000 символов."},
+        {"rule_id": "BR008", "description": "HTML-отчёт с брендингом Andre AI Technologies, dark/light тема."}
+      ],
+      "acceptance_criteria": [
+        {
+          "scenario_id": "SC001",
+          "user_story": "Как бот, я хочу создать ассессмент для пользователя, чтобы начать диагностику.",
+          "bdd": {
+            "given": "Пользователь с telegram_user_id существует или создаётся",
+            "and_preconditions": [],
+            "when": "POST /api/v1/assessments с user_id",
+            "then": "Создаётся ассессмент со статусом in_progress",
+            "and_postconditions": ["Возвращается assessment_id"]
+          }
+        },
+        {
+          "scenario_id": "SC002",
+          "user_story": "Как бот, я хочу сохранить ответ пользователя на вопрос.",
+          "bdd": {
+            "given": "Существует активный ассессмент",
+            "and_preconditions": [],
+            "when": "POST /api/v1/assessments/{id}/answers с question_code, option_value",
+            "then": "Ответ сохранён в БД",
+            "and_postconditions": ["При повторном ответе на тот же вопрос — обновление"]
+          }
+        },
+        {
+          "scenario_id": "SC003",
+          "user_story": "Как бот, я хочу получить результаты после завершения диагностики.",
+          "bdd": {
+            "given": "Все 35 вопросов отвечены",
+            "and_preconditions": [],
+            "when": "POST /api/v1/assessments/{id}/complete",
+            "then": "Рассчитывается индекс, уровень зрелости, категории, сильные/слабые стороны",
+            "and_postconditions": ["Статус ассессмента меняется на completed"]
+          }
+        },
+        {
+          "scenario_id": "SC004",
+          "user_story": "Как бот, я хочу получить LLM-анализ результатов.",
+          "bdd": {
+            "given": "Ассессмент завершён и результаты рассчитаны",
+            "and_preconditions": [],
+            "when": "POST /api/v1/assessments/{id}/analyze",
+            "then": "Возвращается LLM-анализ (интерпретация, SWOT, рекомендации)",
+            "and_postconditions": ["При недоступности LLM — fallback-анализ"]
+          }
+        },
+        {
+          "scenario_id": "SC005",
+          "user_story": "Как бот, я хочу получить HTML-отчёт для отправки пользователю.",
+          "bdd": {
+            "given": "Ассессмент завершён, есть результаты и анализ",
+            "and_preconditions": [],
+            "when": "GET /api/v1/reports/{report_id}",
+            "then": "Возвращается HTML-страница с результатами",
+            "and_postconditions": []
+          }
+        },
+        {
+          "scenario_id": "SC006",
+          "user_story": "Как бот, я хочу получить банк вопросов для отображения пользователю.",
+          "bdd": {
+            "given": "Сервис запущен",
+            "and_preconditions": [],
+            "when": "GET /api/v1/questions",
+            "then": "Возвращается список всех 35 вопросов с категориями",
+            "and_postconditions": []
+          }
+        }
+      ],
+      "non_functional_requirements": [
+        {"nfr_id": "NFR001", "type": "performance", "description": "Расчёт результатов — менее 100ms."},
+        {"nfr_id": "NFR002", "type": "availability", "description": "Fallback при недоступности LLM."},
+        {"nfr_id": "NFR003", "type": "security", "description": "Санитизация report_id, экранирование HTML."}
+      ],
+      "test_cases": [
+        {
+          "test_id": "T001",
+          "scenario_id": "SC003",
+          "setup": "Все ответы — 5",
+          "action": "calculate_results(answers)",
+          "assertion": "total_percent == 100.0, maturity_level == 'AI-Native'",
+          "examples": [{"input": {"all_scores": 5}, "expected": {"total_percent": 100.0, "maturity_level": "AI-Native"}}]
+        },
+        {
+          "test_id": "T002",
+          "scenario_id": "SC003",
+          "setup": "Все ответы — 1",
+          "action": "calculate_results(answers)",
+          "assertion": "total_percent == 0.0, maturity_level == 'Начальный'",
+          "examples": [{"input": {"all_scores": 1}, "expected": {"total_percent": 0.0, "maturity_level": "Начальный"}}]
+        },
+        {
+          "test_id": "T003",
+          "scenario_id": "SC003",
+          "setup": "Все ответы — 3",
+          "action": "calculate_results(answers)",
+          "assertion": "total_percent == 50.0, maturity_level == 'AI-Driven'",
+          "examples": [{"input": {"all_scores": 3}, "expected": {"total_percent": 50.0, "maturity_level": "AI-Driven"}}]
+        },
+        {
+          "test_id": "T004",
+          "scenario_id": "SC003",
+          "setup": "10 ответов 'Не знаю'",
+          "action": "calculate_results(answers)",
+          "assertion": "reliability == 'Низкая', unknown_count == 10",
+          "examples": [{"input": {"unknown_count": 10}, "expected": {"reliability": "Низкая"}}]
+        },
+        {
+          "test_id": "T005",
+          "scenario_id": "SC005",
+          "setup": "Результат с анализом",
+          "action": "generate_html_report(result, analysis)",
+          "assertion": "HTML содержит результаты, брендинг, dark mode",
+          "examples": [{"input": {}, "expected": {"contains": ["<!DOCTYPE html>", "Andre AI"]}}]
+        },
+        {
+          "test_id": "T006",
+          "scenario_id": "SC006",
+          "setup": "Банк вопросов загружен",
+          "action": "GET /api/v1/questions",
+          "assertion": "35 вопросов, 7 категорий",
+          "examples": [{"input": {}, "expected": {"questions_count": 35, "categories_count": 7}}]
+        }
+      ]
+    }
+  ]
+}
