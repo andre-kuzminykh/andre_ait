@@ -26,9 +26,6 @@ from data.keyboards import (
 from state.assessment_state import current_assessment, analysis_messages
 from node.assessment.trigger.start_node import safe_edit
 
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "service"))
 from data.assessment.question_bank import QUESTIONS
 
 logger = logging.getLogger(__name__)
