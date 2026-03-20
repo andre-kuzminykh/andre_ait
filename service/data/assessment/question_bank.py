@@ -4,6 +4,8 @@
 """
 from __future__ import annotations
 
+from typing import Dict, List, Optional
+
 CATEGORIES = [
     {
         "code": "strategy",
@@ -564,13 +566,13 @@ QUESTIONS = [
 ]
 
 
-def get_category_by_code(code: str) -> dict | None:
+def get_category_by_code(code: str) -> Optional[dict]:
     for cat in CATEGORIES:
         if cat["code"] == code:
             return cat
     return None
 
 
-def get_questions_by_category(category_code: str) -> list[dict]:
+def get_questions_by_category(category_code: str) -> List[dict]:
     return [q for q in QUESTIONS if q["category"] == category_code]
 

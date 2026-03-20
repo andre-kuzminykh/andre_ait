@@ -6,6 +6,8 @@ Feature: F001 — AI Maturity Assessment
 Scenarios: SC001, SC003, SC004
 """
 
+from typing import Optional
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +20,7 @@ class AssessmentRepository(BaseRepository[AssessmentModel]):
     def __init__(self):
         super().__init__(AssessmentModel)
 
-    async def get_active(self, session: AsyncSession, user_id: int) -> AssessmentModel | None:
+    async def get_active(self, session: AsyncSession, user_id: int) -> Optional[AssessmentModel]:
         result = await session.execute(
             select(self.model)
             .where(
@@ -30,7 +32,7 @@ class AssessmentRepository(BaseRepository[AssessmentModel]):
         )
         return result.scalar_one_or_none()
 
-    async def get_last_completed(self, session: AsyncSession, user_id: int) -> AssessmentModel | None:
+    async def get_last_completed(self, session: AsyncSession, user_id: int) -> Optional[AssessmentModel]:
         result = await session.execute(
             select(self.model)
             .where(

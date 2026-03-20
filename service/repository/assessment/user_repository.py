@@ -6,6 +6,8 @@ Feature: F001 — AI Maturity Assessment
 Scenarios: SC001
 """
 
+from typing import Optional
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,9 +23,9 @@ class UserRepository(BaseRepository[UserModel]):
         self,
         session: AsyncSession,
         telegram_user_id: int,
-        username: str | None = None,
-        first_name: str | None = None,
-        last_name: str | None = None,
+        username: Optional[str] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
     ) -> UserModel:
         result = await session.execute(
             select(self.model).where(self.model.telegram_user_id == telegram_user_id)

@@ -6,6 +6,8 @@ Feature: F001 — AI Maturity Assessment
 Scenarios: SC001-SC006
 """
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -53,7 +55,7 @@ async def create_assessment(
     return assessment
 
 
-@router.get("/active/{user_id}", response_model=AssessmentResponseSchema | None)
+@router.get("/active/{user_id}", response_model=Optional[AssessmentResponseSchema])
 async def get_active_assessment(
     user_id: int,
     session: AsyncSession = Depends(get_session),

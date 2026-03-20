@@ -10,6 +10,7 @@ Scenarios: SC001-SC006
 """
 
 import logging
+from typing import Dict, List, Optional
 
 import httpx
 
@@ -28,9 +29,9 @@ class AssessmentAPI:
     async def get_or_create_user(
         self,
         telegram_user_id: int,
-        username: str | None = None,
-        first_name: str | None = None,
-        last_name: str | None = None,
+        username: Optional[str] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
     ) -> dict:
         async with httpx.AsyncClient() as client:
             r = await client.post(
@@ -54,7 +55,7 @@ class AssessmentAPI:
             r.raise_for_status()
             return r.json()
 
-    async def get_active_assessment(self, user_id: int) -> dict | None:
+    async def get_active_assessment(self, user_id: int) -> Optional[dict]:
         async with httpx.AsyncClient() as client:
             r = await client.get(self._url(f"/assessments/active/{user_id}"))
             r.raise_for_status()
@@ -79,8 +80,8 @@ class AssessmentAPI:
         assessment_id: int,
         question_code: str,
         category_code: str,
-        option_value: int | None,
-        score: int | None,
+        option_value: Optional[int],
+        score: Optional[int],
         is_unknown: bool,
     ) -> dict:
         async with httpx.AsyncClient() as client:
@@ -104,7 +105,7 @@ class AssessmentAPI:
             )
             r.raise_for_status()
 
-    async def get_answers(self, assessment_id: int) -> list[dict]:
+    async def get_answers(self, assessment_id: int) -> List[dict]:
         async with httpx.AsyncClient() as client:
             r = await client.get(self._url(f"/assessments/{assessment_id}/answers"))
             r.raise_for_status()
@@ -128,13 +129,13 @@ class AssessmentAPI:
             r.raise_for_status()
             return r.json()
 
-    async def get_questions(self) -> list[dict]:
+    async def get_questions(self) -> List[dict]:
         async with httpx.AsyncClient() as client:
             r = await client.get(self._url("/questions"))
             r.raise_for_status()
             return r.json()
 
-    async def get_question_by_index(self, index: int) -> dict | None:
+    async def get_question_by_index(self, index: int) -> Optional[dict]:
         async with httpx.AsyncClient() as client:
             r = await client.get(self._url(f"/questions/{index}"))
             r.raise_for_status()

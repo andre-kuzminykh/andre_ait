@@ -7,23 +7,24 @@ Scenarios: SC001
 """
 
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
 
 class UserCreateSchema(BaseModel):
     telegram_user_id: int
-    username: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 
 class UserResponseSchema(BaseModel):
     id: int
     telegram_user_id: int
-    username: str | None
-    first_name: str | None
-    last_name: str | None
+    username: Optional[str]
+    first_name: Optional[str]
+    last_name: Optional[str]
     created_at: datetime
 
     class Config:

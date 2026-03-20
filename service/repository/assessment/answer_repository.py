@@ -6,6 +6,8 @@ Feature: F001 — AI Maturity Assessment
 Scenarios: SC002, SC003
 """
 
+from typing import List, Optional
+
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,7 +19,7 @@ class AnswerRepository(BaseRepository[AnswerModel]):
     def __init__(self):
         super().__init__(AnswerModel)
 
-    async def get_by_assessment(self, session: AsyncSession, assessment_id: int) -> list[AnswerModel]:
+    async def get_by_assessment(self, session: AsyncSession, assessment_id: int) -> List[AnswerModel]:
         result = await session.execute(
             select(self.model)
             .where(self.model.assessment_id == assessment_id)
@@ -31,8 +33,8 @@ class AnswerRepository(BaseRepository[AnswerModel]):
         assessment_id: int,
         question_code: str,
         category_code: str,
-        option_value: int | None,
-        score: int | None,
+        option_value: Optional[int],
+        score: Optional[int],
         is_unknown: bool,
     ) -> AnswerModel:
         result = await session.execute(

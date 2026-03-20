@@ -12,6 +12,7 @@ Scenarios: SC001, SC002, SC003, SC004, SC005
 
 import json
 from datetime import datetime, timezone
+from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,9 +39,9 @@ class AssessmentService:
         self,
         session: AsyncSession,
         telegram_user_id: int,
-        username: str | None = None,
-        first_name: str | None = None,
-        last_name: str | None = None,
+        username: Optional[str] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
     ):
         return await self._user_repo.get_or_create(
             session, telegram_user_id, username, first_name, last_name
@@ -68,8 +69,8 @@ class AssessmentService:
         assessment_id: int,
         question_code: str,
         category_code: str,
-        option_value: int | None,
-        score: int | None,
+        option_value: Optional[int],
+        score: Optional[int],
         is_unknown: bool,
     ):
         return await self._answer_repo.upsert_answer(
@@ -80,7 +81,7 @@ class AssessmentService:
     async def delete_answer(self, session: AsyncSession, assessment_id: int, question_code: str):
         await self._answer_repo.delete_by_question(session, assessment_id, question_code)
 
-    async def get_answers(self, session: AsyncSession, assessment_id: int) -> list[dict]:
+    async def get_answers(self, session: AsyncSession, assessment_id: int) -> List[dict]:
         answers = await self._answer_repo.get_by_assessment(session, assessment_id)
         return [
             {
@@ -126,5 +127,5 @@ class AssessmentService:
 
         return {"analysis": analysis, "report_url": report_url}
 
-    def get_report_html(self, report_id: str) -> str | None:
+    def get_report_html(self, report_id: str) -> Optional[str]:
         return self._report.read_report(report_id)

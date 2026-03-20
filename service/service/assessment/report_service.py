@@ -16,6 +16,7 @@ Scenarios: SC005
 import html as html_mod
 import os
 import uuid
+from typing import List, Optional
 
 from core.config import config
 
@@ -38,7 +39,7 @@ class ReportService:
         base = config.REPORT_BASE_URL.rstrip("/")
         return f"{base}/api/v1/reports/{report_id}"
 
-    def get_report_path(self, report_id: str) -> str | None:
+    def get_report_path(self, report_id: str) -> Optional[str]:
         if not all(c in "0123456789abcdef" for c in report_id):
             return None
         path = os.path.join(REPORTS_DIR, f"{report_id}.html")
@@ -46,14 +47,14 @@ class ReportService:
             return None
         return path
 
-    def read_report(self, report_id: str) -> str | None:
+    def read_report(self, report_id: str) -> Optional[str]:
         path = self.get_report_path(report_id)
         if not path:
             return None
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
 
-    def generate_html_report(self, result: dict, analysis: str | None) -> str:
+    def generate_html_report(self, result: dict, analysis: Optional[str]) -> str:
         categories_html = self._build_categories_html(result["categories"])
         strengths_html = ", ".join(
             f'{s["emoji"]} {html_mod.escape(s["name"])} ({s["percent"]}%)'
@@ -78,7 +79,7 @@ class ReportService:
         )
 
     @staticmethod
-    def _build_categories_html(categories: list[dict]) -> str:
+    def _build_categories_html(categories: List[dict]) -> str:
         rows = []
         for c in categories:
             tentative = (

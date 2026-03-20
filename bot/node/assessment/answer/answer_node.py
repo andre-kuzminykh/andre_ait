@@ -9,6 +9,7 @@ Scenarios: SC002, SC003, SC004, SC005
 import html as html_mod
 import logging
 import re
+from typing import List
 
 from aiogram.enums import ParseMode
 
@@ -123,7 +124,7 @@ async def _show_results(callback, assessment_id: int):
     report_url = analysis_data.get("report_url")
     report_link_text = f'\n\n📎 Развернутые рекомендации:\n{report_url}' if report_url else ""
     tg_user_id = callback.from_user.id
-    sent_ids: list[int] = []
+    sent_ids: List[int] = []
 
     if analysis:
         formatted = _format_analysis(analysis)
@@ -169,7 +170,7 @@ def _format_analysis(text: str) -> str:
     return text.strip()
 
 
-def _split_message(text: str, max_len: int = 4000) -> list[str]:
+def _split_message(text: str, max_len: int = 4000) -> List[str]:
     """Split text into chunks respecting line breaks."""
     if len(text) <= max_len:
         return [text]

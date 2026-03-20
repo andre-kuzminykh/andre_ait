@@ -9,6 +9,8 @@ Scenarios: SC006
 - data.assessment.question_bank
 """
 
+from typing import Dict, List, Optional
+
 from data.assessment.question_bank import (
     CATEGORIES,
     QUESTIONS,
@@ -18,19 +20,19 @@ from data.assessment.question_bank import (
 
 
 class QuestionService:
-    def get_all_questions(self) -> list[dict]:
+    def get_all_questions(self) -> List[dict]:
         return QUESTIONS
 
-    def get_all_categories(self) -> list[dict]:
+    def get_all_categories(self) -> List[dict]:
         return CATEGORIES
 
-    def get_category(self, code: str) -> dict | None:
+    def get_category(self, code: str) -> Optional[dict]:
         return get_category_by_code(code)
 
-    def get_questions_for_category(self, category_code: str) -> list[dict]:
+    def get_questions_for_category(self, category_code: str) -> List[dict]:
         return get_questions_by_category(category_code)
 
-    def get_question_by_index(self, index: int) -> dict | None:
+    def get_question_by_index(self, index: int) -> Optional[dict]:
         if 0 <= index < len(QUESTIONS):
             return QUESTIONS[index]
         return None

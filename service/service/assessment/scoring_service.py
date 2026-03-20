@@ -13,6 +13,8 @@ Scenarios: SC003
 - data.assessment.question_bank
 """
 
+from typing import Dict, List
+
 from data.assessment.question_bank import CATEGORIES, QUESTIONS
 
 
@@ -42,9 +44,9 @@ class ScoringService:
         else:
             return "Низкая"
 
-    def calculate_results(self, answers: list[dict]) -> dict:
+    def calculate_results(self, answers: List[Dict]) -> Dict:
         """Calculate full assessment results from a list of answer dicts."""
-        cat_answers: dict[str, list[int]] = {}
+        cat_answers: Dict[str, List[int]] = {}
         unknown_count = 0
 
         for ans in answers:

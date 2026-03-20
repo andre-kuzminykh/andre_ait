@@ -15,6 +15,7 @@ Scenarios: SC004
 """
 
 import logging
+from typing import Dict, List, Optional
 
 from openai import AsyncOpenAI
 
@@ -126,7 +127,7 @@ FALLBACK_INTERPRETATIONS = {
 
 class LLMService:
     @staticmethod
-    def build_user_prompt(result: dict, answers: list[dict], questions_map: dict) -> str:
+    def build_user_prompt(result: dict, answers: List[dict], questions_map: dict) -> str:
         categories_text = "\n".join(
             f"  {c['emoji']} {c['name']}: {c['percent']}%"
             + (" (ориентировочно)" if c.get("tentative") else "")
@@ -160,7 +161,7 @@ class LLMService:
             answers_text=answers_text,
         )
 
-    async def generate_analysis(self, result: dict, answers: list[dict]) -> str | None:
+    async def generate_analysis(self, result: dict, answers: List[dict]) -> Optional[str]:
         if not config.LLM_API_KEY:
             logger.warning("LLM_API_KEY not set, skipping LLM analysis")
             return None

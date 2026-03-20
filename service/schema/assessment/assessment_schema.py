@@ -7,6 +7,7 @@ Scenarios: SC001, SC003, SC004
 """
 
 from datetime import datetime
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -31,10 +32,10 @@ class AssessmentResponseSchema(BaseModel):
     user_id: int
     status: str
     current_question_index: int
-    completed_at: datetime | None
-    total_score_percent: float | None
-    maturity_level: str | None
-    reliability_level: str | None
+    completed_at: Optional[datetime]
+    total_score_percent: Optional[float]
+    maturity_level: Optional[str]
+    reliability_level: Optional[str]
     created_at: datetime
 
     class Config:
@@ -47,11 +48,11 @@ class AssessmentResultSchema(BaseModel):
     maturity_level: str
     reliability: str
     unknown_count: int
-    categories: list[dict]
-    strengths: list[dict]
-    weaknesses: list[dict]
+    categories: List[Dict]
+    strengths: List[Dict]
+    weaknesses: List[Dict]
 
 
 class AnalysisResponseSchema(BaseModel):
     analysis: str
-    report_url: str | None = None
+    report_url: Optional[str] = None
