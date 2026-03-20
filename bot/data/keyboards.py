@@ -6,13 +6,20 @@ Feature: F001 — AI Maturity Assessment
 Scenarios: SC001-SC005
 """
 
-import sys
+import importlib.util
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "service"))
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from data.assessment.question_bank import QUESTIONS
+# Load question_bank from service/data/assessment/ without polluting sys.path
+_qb_path = os.path.join(
+    os.path.dirname(__file__), "..", "..", "service", "data", "assessment", "question_bank.py"
+)
+_spec = importlib.util.spec_from_file_location("_question_bank_kb", _qb_path)
+_qb = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_qb)
+
+QUESTIONS = _qb.QUESTIONS
 
 
 def start_keyboard(has_progress: bool = False) -> InlineKeyboardMarkup:

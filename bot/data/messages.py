@@ -6,12 +6,20 @@ Feature: F001 — AI Maturity Assessment
 Scenarios: SC001-SC005
 """
 
-# Local copy of question bank for formatting (no DB dependency)
-import sys
+import importlib.util
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "service"))
 
-from data.assessment.question_bank import QUESTIONS, CATEGORIES, get_category_by_code
+# Load question_bank from service/data/assessment/ without polluting sys.path
+_qb_path = os.path.join(
+    os.path.dirname(__file__), "..", "..", "service", "data", "assessment", "question_bank.py"
+)
+_spec = importlib.util.spec_from_file_location("_question_bank", _qb_path)
+_qb = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_qb)
+
+QUESTIONS = _qb.QUESTIONS
+CATEGORIES = _qb.CATEGORIES
+get_category_by_code = _qb.get_category_by_code
 
 
 def welcome_text() -> str:
