@@ -4,7 +4,8 @@ __pycache__/
 .pytest_cache/
 *.db
 .env
-reports/
+/reports/
+/service/reports/
 *.egg-info/
 dist/
 build/
